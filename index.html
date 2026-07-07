@@ -46,6 +46,9 @@
   section{margin-top:56px}
   h2{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
   .note{color:var(--muted);font-size:14.5px;margin:0 0 18px;max-width:800px;text-wrap:pretty}
+  .tlpointer{margin:18px 0 0;font-size:13.5px}
+  .tlpointer a{color:var(--accent);text-decoration:none;font-weight:600}
+  .tlpointer a:hover{text-decoration:underline}
   .card{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:20px 20px 14px}
   .chart{position:relative;width:100%}
   .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:0 0 12px}
@@ -142,23 +145,33 @@
     <div class="stamp" id="stamp"></div>
   </header>
 
-  <section>
-    <h2>Growth of the field</h2>
-    <p class="note">New scholarly work on digital minds each year. Markers flag milestones in AI and neurotechnology; hover any for detail. The current year shows works recorded so far (○) and a dashed line at its full-year pace.</p>
-    <div class="legend" id="lg-growth"></div>
-    <div class="card"><div class="ylab">Works per year</div><div class="chart" style="height:340px"><canvas id="c-growth"></canvas><div class="evtip" id="event-tip"></div></div></div>
-    <div class="tile strip"><div class="fun" id="kpis"></div></div>
-    <div class="tile strip"><div class="fun" id="fun"></div></div>
-  </section>
+  <div class="tile strip"><div class="fun" id="kpis"></div></div>
+  <div class="tile strip" style="margin-top:14px"><div class="fun" id="fun"></div></div>
+  <p class="note tlpointer">See how the field grew year by year, with the milestones that shaped it, in the <a href="timeline.html">interactive timeline&nbsp;→</a></p>
 
   <section>
     <h2>What the field asks</h2>
-    <p class="note">The same works, grouped by the main question each one addresses. Click any bar segment to open the works behind&nbsp;it.</p>
+    <p class="note">Every work in the field, grouped by the main question it addresses. Click any bar segment to open the works behind&nbsp;it.</p>
     <div class="legrow"><div class="legend" id="lg-themes"></div>
       <div class="seg" id="seg-th"><button class="on" data-m="count">Counts</button><button data-m="share">Share</button></div></div>
     <div class="card"><div class="ylab" id="ylab-themes">Works per year</div><div class="chart" style="height:330px"><canvas id="c-themes"></canvas></div></div>
   </section>
 
+
+  <section>
+    <h2>Who studies machine minds</h2>
+    <p class="note">The home discipline of each work — the research community whose literature it builds on, whose methods it uses, and whose audience it addresses. Not the topic: machine consciousness argued by neuroscientists is cognitive science; argued philosophically, it is philosophy. Click a row for its works; the chart below tracks the mix over time.</p>
+    <div class="card"><div class="venuegrid" id="disc"></div></div>
+    <div class="legrow" style="margin-top:22px"><div class="legend" id="lg-disc"></div>
+      <div class="seg" id="seg-di"><button class="on" data-m="count">Counts</button><button data-m="share">Share</button></div></div>
+    <div class="card"><div class="ylab" id="ylab-disc">Works per year</div><div class="chart" style="height:300px"><canvas id="c-disc"></canvas></div></div>
+  </section>
+
+  <section>
+    <h2>Where questions meet disciplines</h2>
+    <p class="note">How the field&rsquo;s questions distribute across its research communities. Dot area is proportional to the number of works — hover for the count, click to open the list.</p>
+    <div class="card" style="overflow-x:auto"><div class="mx" id="matrix"></div></div>
+  </section>
 
 
 
@@ -222,7 +235,7 @@ document.getElementById('anchor').textContent=
 document.getElementById('stamp').innerHTML=
   `Living dataset<span class="dot">·</span>snapshot ${D.generated}<span class="dot">·</span>sources: OpenAlex, Crossref, Semantic Scholar, arXiv, PhilPapers`;
 document.getElementById('foot').textContent=
-  `Generated ${D.generated}. Digital Minds Observatory. Statistics, growth series, and rankings computed from the ${nf(t.core)} core works published since 2010.`;
+  `Generated ${D.generated}. Digital Minds Observatory. Statistics, compositions, and rankings computed from the ${nf(t.core)} core works published since 2010.`;
 const fpct=n=>Math.max(2,Math.round(100*n/t.authors));
 document.getElementById('kpis').innerHTML=
   `<div><div class="v">${nf(t.core)}</div><div class="l">works in the field since 2010</div></div>`+
@@ -233,7 +246,9 @@ document.getElementById('fun').innerHTML=
   `<div><div class="v">${nf(t.active)}</div><div class="fbar"><i style="width:${fpct(t.active)}%"></i></div><div class="l">of them published in the last two years</div></div>`+
   `<div><div class="v">${nf(D.nqual)}</div><div class="fbar"><i style="width:${fpct(D.nqual)}%"></i></div><div class="l">of those have two or more works in the field</div></div>`;
 
-// ---- growth (event-marker timeline) ----
+// ---- growth chart REMOVED from the Overview (the Timeline tab now tells the
+// growth-over-time story); block guarded off but kept for reference/reuse ----
+if(document.getElementById('c-growth')){
 const g={years:D.years,core_scholarly:D.core,projection_2026:D.projection};
 const AI_EVENTS=[
   [2012,0,'AlexNet','Deep neural networks win ImageNet; the deep-learning era begins.'],
@@ -316,6 +331,7 @@ new Chart(document.getElementById('c-growth'),{type:'line',
       y:{beginAtZero:true,grid:{color:GRID}}}},
   plugins:[growthEv.plugin]});
 bindEventTips('c-growth','event-tip',growthEv.store);
+}
 
 // ---- classification sections: charts + matrix + drill-down sheet ----
 const PAL=['#4098ff','#ff4f88','#f59e0b','#10b981','#8b5cf6','#14b8a6','#64748b','#d1d5db'];
@@ -339,7 +355,7 @@ document.getElementById('backdrop').addEventListener('click',closeSheet);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 
 // stacked-bar factory with Counts/Share toggle and click-to-drill
-function stack(id,segId,ylabId,labels,series,onPick){
+function stack(id,segId,ylabId,labels,series,onPick,initShare){
   const raw=series.map(s=>[...s]);
   const tot=D.years.map((_,yi)=>series.reduce((a,s)=>a+s[yi],0)||1);
   const share=series.map(s=>s.map((v,yi)=>+(100*v/tot[yi]).toFixed(1)));
@@ -367,6 +383,13 @@ function stack(id,segId,ylabId,labels,series,onPick){
     document.getElementById(ylabId).textContent=mode==='share'?'Share of works (%)':'Works per year';
     ch.options.scales.y.max=mode==='share'?100:undefined;
     ch.update();});
+  if(initShare){ // open on the composition (share) view rather than raw counts
+    mode='share';
+    ch.data.datasets.forEach((ds,i)=>ds.data=share[i]);
+    document.getElementById(ylabId).textContent='Share of works (%)';
+    ch.options.scales.y.max=100; ch.update();
+    [...document.getElementById(segId).children].forEach(x=>x.classList.toggle('on',x.dataset.m==='share'));
+  }
   return ch;
 }
 // themes chart: dataset i<7 -> theme index i (matrix-row order); 7 -> the "Other" tail
@@ -375,7 +398,40 @@ legend('lg-themes',D.themesyr.labels.map((l,i)=>[l,PAL[i]]));
 stack('c-themes','seg-th','ylab-themes',D.themesyr.labels,D.themesyr.series,(di,yi)=>{
   const y=D.years[yi];
   openSheet(D.themesyr.labels[di],`primary theme · ${y===2026?'2026 so far':y}`,
-    W.filter(w=>thMatch(w,di)&&w[1]===y));});
+    W.filter(w=>thMatch(w,di)&&w[1]===y));},true);
+
+// disciplines chart: i<6 -> discipline index i (matrix-col order); 6 -> tail
+const diMatch=(w,di)=>di<6?w[6]===di:(w[6]>=6||w[6]<0);
+legend('lg-disc',D.discyr.labels.map((l,i)=>[l,PAL[i]]));
+stack('c-disc','seg-di','ylab-disc',D.discyr.labels,D.discyr.series,(di,yi)=>{
+  const y=D.years[yi];
+  openSheet(D.discyr.labels[di],`discipline · ${y===2026?'2026 so far':y}`,
+    W.filter(w=>diMatch(w,di)&&w[1]===y));},true);
+
+// discipline totals (clickable rows)
+const dmax=D.disc.length?D.disc[0][1]:1;
+document.getElementById('disc').innerHTML=D.disc.map(([v,n,p],i)=>
+  `<div class="venue click" data-di="${i}"><div class="vn">${esc(v)}<div class="bar" style="width:${100*n/dmax}%"></div></div><div class="vc">${nf(n)} · ${p}%</div></div>`).join('');
+document.getElementById('disc').addEventListener('click',e=>{
+  const r=e.target.closest('.venue');if(!r)return;const i=+r.dataset.di;
+  openSheet(DIL[i],'discipline · all years',W.filter(w=>w[6]===i));});
+
+// questions x disciplines matrix (clickable dots)
+const M=D.matrix,mmax=Math.max(...M.cells.flat());
+const mxEl=document.getElementById('matrix');
+mxEl.style.gridTemplateColumns=`max-content repeat(${M.cols.length},minmax(46px,1fr))`;
+let mh='<div></div>'+M.cols.map(c=>`<div class="mxcol"><span>${esc(c)}</span></div>`).join('');
+mh+=M.rows.map((rl,ri)=>`<div class="rowlab">${esc(rl)}</div>`+M.cells[ri].map((v,ci)=>{
+  if(!v)return '<div class="mxc"><i style="width:3px;height:3px;background:var(--line)"></i></div>';
+  const d=Math.max(5,Math.round(30*Math.sqrt(v/mmax)));
+  return `<div class="mxc" data-ri="${ri}" data-ci="${ci}" title="${esc(M.rows[ri])} × ${esc(M.cols[ci])}: ${v} work${v>1?'s':''}"><i style="width:${d}px;height:${d}px"></i></div>`;
+}).join('')).join('');
+mxEl.innerHTML=mh;
+mxEl.addEventListener('click',e=>{
+  const c=e.target.closest('.mxc[data-ri]');if(!c)return;
+  const ri=+c.dataset.ri,ci=+c.dataset.ci;
+  openSheet(`${M.rows[ri]} × ${DIL[ci]}`,'question × discipline · all years',
+    W.filter(w=>w[5]===ri&&w[6]===ci));});
 
 
 
