@@ -37,7 +37,16 @@
      no colour lighter than --muted clears 4.5:1 (a 4.52:1-on-white grey drops to
      4.32:1 there). So the tier below --muted is carried by size and weight, never by
      lightness. --faint is for non-text chrome only (hairlines, grid, dot outlines). */
-  :root{--ink:#171717;--muted:#6b7280;--meta:#6b7280;--read:#4b5563;--faint:#9ca3af;--accent:#4098ff;--mile:#ff4f88;
+  /* Two blues, on purpose. --accent-text (#1f6fd0, 4.95:1 on white / 4.74:1 on the
+     active panel) is the only blue allowed on TEXT — WCAG 1.4.3 wants 4.5:1 and the
+     original #4098ff is 2.94:1. --accent stays for purely decorative fills (the 6%
+     area wash, the era tints), where no information rides on the colour.
+     The three LANE colours are graphical objects that carry meaning, so they clear
+     the 3:1 of 1.4.11 — and because colour alone must not convey information
+     (1.4.1), each lane also has a distinct dot SHAPE and a screen-reader label. */
+  :root{--ink:#171717;--muted:#6b7280;--meta:#6b7280;--read:#4b5563;--faint:#9ca3af;
+    --accent:#4098ff;--accent-text:#1f6fd0;
+    --lane-ai:#f0326f;--lane-field:#1f6fd0;--lane-society:#c2650a;--mile:#f0326f;
     --bg:#ffffff;--card:#f9fafb;--line:#e5e7eb;
     --serif:"Cormorant Garamond",Georgia,serif;
     --sans:"Plus Jakarta Sans",-apple-system,"Segoe UI",sans-serif;}
@@ -45,14 +54,22 @@
   body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--sans);-webkit-font-smoothing:antialiased}
   .wrap{max-width:1340px;margin:0 auto;padding:0 24px}
   header{padding:56px 0 26px;max-width:760px}
-  .kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);font-weight:700}
   .obsnav{display:flex;align-items:center;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;padding:18px 0 16px;border-bottom:1px solid var(--line);margin-bottom:40px}
-  .obsbrand{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;text-decoration:none}
+  .obsbrand{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);font-weight:700;text-decoration:none}
   .obstabs{display:flex;gap:6px}
   .otab{font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;padding:6px 15px;border-radius:999px}
   .otab:hover{color:var(--ink);background:var(--card)}
   .otab.active{color:#fff;background:var(--ink)}
-  .otab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  /* one focus indicator for every link, at 4.95:1 against the page (2.4.7 + 1.4.11) */
+  a:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px;border-radius:3px}
+  /* skip link: 2.4.1 bypass blocks — visible only once focused */
+  .skip{position:absolute;left:-9999px;top:8px;z-index:20;background:var(--bg);color:var(--accent-text);
+    font-size:13px;font-weight:600;padding:8px 14px;border:1px solid var(--line);border-radius:8px}
+  .skip:focus{left:24px}
+  /* text for assistive tech only — carries the lane name that colour alone can't (1.4.1) */
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0}
   h1{font-family:var(--serif);font-size:46px;font-weight:600;line-height:1.05;margin:12px 0 14px;text-wrap:balance}
   .sub{color:var(--muted);font-size:16px;max-width:64ch;text-wrap:pretty}
   .scrolly{display:grid;grid-template-columns:minmax(320px,4.6fr) 7.4fr;gap:90px;align-items:start}
@@ -66,19 +83,24 @@
   .step h2,.step p{transition:color .35s}
   .step h2{color:var(--muted)}
   .step p{color:var(--muted)}
-  .step.active .step-card{border-left-color:var(--accent);background:var(--card);
+  .step.active .step-card{border-left-color:var(--accent-text);background:var(--card);
     border-radius:0 10px 10px 0;padding-right:18px}
   .step.active h2{color:var(--ink)}
   .step.active p{color:var(--read)}
-  .step .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .step .k{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-text);font-weight:700}
   .step h2{font-family:var(--serif);font-size:29px;font-weight:600;line-height:1.12;margin:8px 0 10px;text-wrap:balance}
   .step p{color:var(--muted);font-size:15px;margin:0 0 14px;max-width:52ch;text-wrap:pretty}
   .ev{display:flex;gap:8px;align-items:baseline;font-size:13px;color:var(--muted);margin:5px 0}
   .ev .dot{flex:none;width:8px;height:8px;border-radius:50%;vertical-align:0;position:relative;top:0;align-self:center}
-  .ev.ai .dot{background:var(--mile)} .ev.field .dot{background:var(--accent)} .ev.society .dot{background:#f59e0b}
+  .ev.ai .dot{background:var(--lane-ai);border-radius:50%}
+  .ev.field .dot{background:var(--lane-field);border-radius:2px}
+  .ev.society .dot{background:var(--lane-society);border-radius:1px;transform:rotate(45deg)}
   .lanes{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:16px;font-size:12.5px;color:var(--muted)}
   .lanes span{display:inline-flex;align-items:center;gap:7px}
-  .lanes i{width:8px;height:8px;border-radius:50%;flex:none}
+  .lanes i{width:8px;height:8px;flex:none}
+  .lanes i.ai{background:var(--lane-ai);border-radius:50%}
+  .lanes i.field{background:var(--lane-field);border-radius:2px}
+  .lanes i.society{background:var(--lane-society);border-radius:1px;transform:rotate(45deg)}
   .ev .yy{color:var(--meta);font-variant-numeric:tabular-nums}
   .works{margin-top:14px;border-top:1px solid var(--line);padding-top:8px}
   .wkhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;
@@ -86,18 +108,18 @@
   .wkl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
   .wkc{font-size:10.5px;color:var(--meta)}
   .wk{display:grid;grid-template-columns:46px 1fr;gap:10px;padding:7px 0;align-items:baseline}
-  .wk .n{text-align:right;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
+  .wk .n{text-align:right;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--accent-text);font-variant-numeric:tabular-nums}
   .wk .n span{display:block;font-size:8px;color:var(--meta);text-transform:uppercase;letter-spacing:.05em;font-family:var(--sans);margin-top:3px}
   .wk .ti{font-size:12.5px;line-height:1.35}
   .wk .ti a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
-  .wk .ti a:hover{color:var(--accent);border-color:var(--accent)}
+  .wk .ti a:hover{color:var(--accent-text);border-color:var(--accent-text)}
   .wk .au{color:var(--meta);font-size:11px;margin-top:1px}
   .stick{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:22px 0}
   .yearrow{display:flex;align-items:baseline;gap:16px}
   .bigyear{font-family:var(--serif);font-size:76px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
   .era{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted);
     border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card)}
-  .era.llm{color:var(--accent);border-color:rgba(64,152,255,.4)}
+  .era.llm{color:var(--accent-text);border-color:rgba(31,111,208,.45)}
   /* The canvas carries an inline pixel width from fit(); clamp it so a stale value
      can never widen the layout (as a flex item it would otherwise set the column's
      min-content width and push the page into horizontal scroll). */
@@ -136,8 +158,9 @@
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to the timeline</a>
 <div class="wrap">
-  <nav class="obsnav">
+  <nav class="obsnav" aria-label="Observatory sections">
     <a class="obsbrand" href="index.html">Digital Minds Observatory</a>
     <div class="obstabs">
       <a href="index.html" class="otab">Overview</a>
@@ -148,24 +171,25 @@
     <h1>How the field happened, 2010–2026</h1>
     <p class="sub">Scroll through the making of a research field — the milestones in AI and neurotechnology, the research and institutions, and the public moments that turned a quiet philosophical question into a field with a name.</p>
     <div class="lanes">
-      <span><i style="background:#ff4f88"></i>Capability &amp; substrate</span>
-      <span><i style="background:#4098ff"></i>Research &amp; the field</span>
-      <span><i style="background:#f59e0b"></i>Public response</span>
+      <span><i class="ai"></i>Capability &amp; substrate (circle)</span>
+      <span><i class="field"></i>Research &amp; the field (square)</span>
+      <span><i class="society"></i>Public response (diamond)</span>
     </div>
   </header>
 
-  <div class="scrolly">
+  <main id="main" class="scrolly">
     <div class="steps" id="steps"></div>
     <div class="stick">
       <div class="yearrow"><div class="bigyear" id="bigyear">2010</div><div class="era" id="era">before deep learning</div></div>
-      <div class="chartcard"><div class="ylab">Total published works</div>
-        <div class="chart-h" style="position:relative;height:300px"><canvas id="cv"></canvas></div></div>
+      <figure class="chartcard" style="margin:0"><figcaption class="ylab">Total published works</figcaption>
+        <div class="chart-h" style="position:relative;height:300px">
+          <canvas id="cv" role="img" aria-label="Loading the cumulative growth curve."></canvas></div></figure>
       <div class="statrow">
         <div class="stat"><div class="v" id="s-year">—</div><div class="l" id="s-year-l">works this year</div></div>
         <div class="stat"><div class="v" id="s-cum">—</div><div class="l">works since 2010</div></div>
       </div>
     </div>
-  </div>
+  </main>
 
   <div class="foot">Digital Minds Observatory — prototype timeline. Counts from the curated corpus; snapshot <span id="gen"></span>.</div>
 </div>
@@ -179,9 +203,12 @@ const YR0=D.years[0], LAST=D.years[D.years.length-1], YR1=LAST+0.45;
 const LASTI=D.counts.length-1;
 let YMAX=40; // dynamic: rescales to the revealed window so early years fill the frame
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
-const KC={ai:'#ff4f88',field:'#4098ff',society:'#f59e0b'};
+const KC={ai:'#f0326f',field:'#1f6fd0',society:'#c2650a'};
+// lane SHAPE as well as colour, so the graphic never conveys by colour alone (1.4.1)
+const KS={ai:'circle',field:'square',society:'diamond'};
+const LANE_NAME={ai:'Capability & substrate',field:'Research & the field',society:'Public response'};
 const EVS=[];
-D.beats.forEach((b,bi)=>b.events.forEach(e=>EVS.push({...e,beat:bi,c:KC[e.kind]||'#4098ff'})));
+D.beats.forEach((b,bi)=>b.events.forEach(e=>EVS.push({...e,beat:bi,c:KC[e.kind]||'#1f6fd0',s:KS[e.kind]||'circle'})));
 const nf=n=>n.toLocaleString();
 const esc=s=>(s+'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Work cards rank by citation count, but counts lag publication — so say how much of
@@ -197,7 +224,7 @@ document.getElementById('steps').innerHTML=D.beats.map((b,i)=>`
     <div class="k">${esc(b.kicker)}</div>
     <h2>${esc(b.title)}</h2>
     <p>${esc(b.body)}</p>
-    ${b.events.map(e=>`<div class="ev ${e.kind}"><span class="dot"></span><span><span class="yy">${e.y}</span> · ${esc(e.label)}</span></div>`).join('')}
+    ${b.events.map(e=>`<div class="ev ${e.kind}"><span class="dot"></span><span><span class="yy">${e.y}</span> · ${esc(e.label)}<span class="sr"> — lane: ${esc(LANE_NAME[e.kind]||e.kind)}</span></span></div>`).join('')}
     ${b.works.length?`<div class="works">
       <div class="wkhead"><span class="wkl">${covLabel(b.cov)}</span><span class="wkc">${covNote(b.cov)}</span></div>
       ${b.works.map(w=>`
@@ -235,10 +262,10 @@ function draw(yf,beat){
   const bands=[[2012,2020,'rgba(107,114,128,.07)'],[2020,YR1,'rgba(64,152,255,.10)']];
   bands.forEach(([a,b,fill])=>{if(yf<=a)return;const x0=sx(a),x1=sx(Math.min(b,yf));
     ctx.fillStyle=fill;ctx.fillRect(x0,M.t,x1-x0,h-M.t-M.b);
-    ctx.strokeStyle='rgba(107,114,128,.3)';ctx.setLineDash([4,3]);ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(107,114,128,.85)';ctx.setLineDash([4,3]);ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(x0,M.t);ctx.lineTo(x0,h-M.b);ctx.stroke();ctx.setLineDash([]);});
   // grid + axes
-  ctx.font='10.5px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='#9ca3af';
+  ctx.font='10.5px "Plus Jakarta Sans",sans-serif';ctx.fillStyle='#6b7280';
   for(let v=0;v<=YMAX;v+=gstep){ctx.strokeStyle='rgba(107,114,128,.12)';ctx.beginPath();
     ctx.moveTo(M.l,sy(v));ctx.lineTo(w-M.r,sy(v));ctx.stroke();
     ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(v,M.l-6,sy(v));}
@@ -266,7 +293,7 @@ function draw(yf,beat){
       ctx.bezierCurveTo(p1.x+(p2.x-p0.x)/6,p1.y+(p2.y-p0.y)/6,
                         p2.x-(p3.x-p1.x)/6,p2.y-(p3.y-p1.y)/6,p2.x,p2.y);
     }
-    ctx.strokeStyle='#4098ff';ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.stroke();
+    ctx.strokeStyle='#1f6fd0';ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.stroke();
     // subtle area fill
     ctx.lineTo(pts[pts.length-1].x,sy(0));ctx.lineTo(pts[0].x,sy(0));ctx.closePath();
     ctx.fillStyle='rgba(64,152,255,.06)';ctx.fill();
@@ -275,9 +302,9 @@ function draw(yf,beat){
   // partial final year: observed dot + dashed full-year pace (only once we reach it)
   if(yf>=LAST-0.1&&D.proj){
     ctx.globalAlpha=Math.min(1,(yf-(LAST-0.1))/.4); // fade in with scroll
-    ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(64,152,255,.5)';ctx.lineWidth=2;
+    ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(31,111,208,.75)';ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(sx(LAST-1),sy(CUM[LASTI-1]));ctx.lineTo(sx(LAST),sy(CUM[LASTI-1]+D.proj));ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='#fff';ctx.strokeStyle='#4098ff';ctx.lineWidth=2.4;
+    ctx.fillStyle='#fff';ctx.strokeStyle='#1f6fd0';ctx.lineWidth=2.4;
     ctx.beginPath();ctx.arc(sx(LAST),sy(CUM[LASTI]),4.5,0,7);ctx.fill();ctx.stroke();
     ctx.globalAlpha=1;}
   // milestone dots on the line (ai pink / field blue / culture violet), revealed up to yf
@@ -285,12 +312,18 @@ function draw(yf,beat){
   EVS.forEach(e=>{if(e.y>yf||e.y<YR0)return;const key=e.c+e.y;if(seen.has(key))return;seen.add(key);
     const x=sx(e.y),yv=sy(valAt(e.y));const act=e.beat===beat;
     const g=Math.min(1,(yf-e.y)*2.2+.2); // grow in with scroll, not pop
-    ctx.beginPath();ctx.arc(x,yv,(act?6:4)*g,0,7);ctx.fillStyle=e.c;ctx.fill();
+    const r=(act?6:4)*g;
+    ctx.beginPath();
+    if(e.s==='square'){ctx.rect(x-r,yv-r,r*2,r*2);}
+    else if(e.s==='diamond'){ctx.moveTo(x,yv-r*1.25);ctx.lineTo(x+r*1.25,yv);
+      ctx.lineTo(x,yv+r*1.25);ctx.lineTo(x-r*1.25,yv);ctx.closePath();}
+    else{ctx.arc(x,yv,r,0,7);}
+    ctx.fillStyle=e.c;ctx.fill();
     ctx.lineWidth=2*g;ctx.strokeStyle='#fff';ctx.stroke();
     if(act&&g>=1){ctx.beginPath();ctx.arc(x,yv,10,0,7);ctx.strokeStyle=e.c+'55';ctx.lineWidth=2;ctx.stroke();}});
   // year cursor
   const cx=sx(Math.min(yf,YR1-.05));
-  ctx.strokeStyle='rgba(23,23,23,.35)';ctx.setLineDash([2,3]);ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(23,23,23,.6)';ctx.setLineDash([2,3]);ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(cx,M.t);ctx.lineTo(cx,h-M.b);ctx.stroke();ctx.setLineDash([]);
 }
 
@@ -307,6 +340,14 @@ function setPanel(yf,beat){
     (yi===LAST&&D.partial)?'works so far in '+yi:'works in '+yi;
   let cum=0;for(let i=0;i<=widx;i++)cum+=D.counts[i];
   document.getElementById('s-cum').textContent=nf(cum);
+  // Text alternative for the canvas: what the curve says at this point in the scroll,
+  // including the beat's own milestones, so the graphic is not sight-only (1.1.1).
+  const b=D.beats[beat]||{}, evs=(b.events||[]).map(e=>e.y+' '+e.label).join('; ');
+  cv.setAttribute('aria-label',
+    `Cumulative growth of the field, ${D.years[0]} to ${LAST}. `
+    +`By ${yi}, ${nf(cum)} works published since ${D.years[0]}, `
+    +`${nf(D.counts[widx])} of them in ${yi}${(yi===LAST&&D.partial)?' so far'+(D.proj?`, on pace for about ${nf(D.proj)}`:''):''}. `
+    +(evs?`Milestones in this period: ${evs}.`:''));
 }
 function render(yf,beat){state.year=yf;state.beat=beat;draw(yf,beat);setPanel(yf,beat);}
 function beatTarget(i){const b=D.beats[i];
