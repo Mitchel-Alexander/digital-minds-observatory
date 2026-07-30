@@ -331,8 +331,10 @@ function setPanel(yf,beat){
   // including the beat's own milestones, so the graphic is not sight-only (1.1.1).
   cv.setAttribute('aria-label',
     `Line chart: cumulative works published, ${D.years[0]} to ${LAST}. `
-    +`By ${yi}, ${nf(cum)} works since ${D.years[0]}, `
-    +`${nf(D.counts[widx])} of them in ${yi}`
+    // rounded to match the visible tiles: the text alternative must carry the same
+    // claim as the graphic, not a more precise one
+    +`By ${yi}, ${approxNum(cum)} works since ${D.years[0]}, `
+    +`${approxNum(D.counts[widx])} of them in ${yi}`
     +((yi===LAST&&D.partial)?' so far'+(D.proj?`, on pace for about ${nf(D.proj)}`:''):'')+'.');
 }
 function render(yf,beat){state.year=yf;state.beat=beat;draw(yf,beat);setPanel(yf,beat);}
