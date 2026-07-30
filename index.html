@@ -59,6 +59,7 @@
   h1{font-family:var(--serif);font-size:52px;font-weight:600;line-height:1.05;letter-spacing:-.01em;margin:14px 0 16px;text-wrap:balance}
   .sub{color:var(--ink);max-width:760px;margin:0;font-size:17px}
   .stamp{color:var(--meta);font-size:13.5px;margin-top:16px}
+  .approxnote{color:var(--meta);font-size:12.5px;margin-top:10px;max-width:70ch;line-height:1.55}
   .stamp .dot{color:var(--meta);padding:0 6px}
   .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:34px 0 8px}
   .tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
@@ -193,7 +194,7 @@
 
   <section>
     <h2>What the field asks</h2>
-    <p class="note">Every work in the field, grouped by the main question it addresses. Click any bar segment to open the works behind&nbsp;it.</p>
+    <p class="note">Every work in this corpus, grouped by the main question it addresses. Click any bar segment to open the works behind&nbsp;it.</p>
     <div class="legrow"><div class="legend" id="lg-themes"></div>
       <div class="seg" id="seg-th"><button class="on" data-m="count">Counts</button><button data-m="share">Share</button></div></div>
     <div class="card"><div class="ylab" id="ylab-themes">Works per year</div><div class="chart" style="height:330px"><canvas id="c-themes" role="img" aria-label="Chart: works per year by primary theme. The same figures are in the table below."></canvas></div>
@@ -274,6 +275,17 @@ const D={"generated": "2026-07-08", "years": [2010, 2011, 2012, 2013, 2014, 2015
 const LAST=D.years[D.years.length-1];
 // the axis label for the final year carries a "*" only while that year is partial
 const yl=y=>(y===LAST&&D.partial)?y+'*':String(y);
+// ---- approximate display figures -------------------------------------------
+// The dashboard is read by people arriving cold (journalists, policy aides, new
+// entrants) and its job is the SHAPE of the field's growth, not an audit. Research on
+// machine minds is spread across journals, edited books and several preprint
+// repositories, so the grey-literature boundary is genuinely blurred and no search
+// finds everything — a precise figure here would imply a census we cannot do.
+// So: display figures round DOWN (every "more than" is strictly true), the exact
+// counts stay in D for reproducibility, and the dataset publishes them in full.
+const floorTo=(n,step)=>Math.floor(n/step)*step;
+const approxBig=n=>n>=1000?'more than '+nf(floorTo(n,100)):(n>=200?'more than '+nf(floorTo(n,50)):'about '+nf(floorTo(n,10)));
+const approxNum=n=>n>=1000?nf(floorTo(n,100))+'+':(n>=100?nf(floorTo(n,10))+'+':nf(n));
 const C={accent:'#368cf1',ink:'#171717'};
 const GRID='rgba(107,114,128,.12)', INK='#171717';
 Chart.defaults.font.family='"Plus Jakarta Sans",-apple-system,sans-serif';
@@ -287,20 +299,21 @@ const esc=s=>(s+'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])
 
 const t=D.tiles;
 document.getElementById('anchor').textContent=
-  `A living map of research into whether artificial systems (AI, robots, brain organoids) could ever be conscious, and what we would owe them if they were. ${nf(t.core)} scholarly works published since 2010, tracked as the field grows.`;
+  `A living map of research into whether artificial systems (AI, robots, brain organoids) could ever be conscious, and what we would owe them if they were. ${approxNum(t.core)} curated works published since 2010, tracked as the field grows.`;
 document.getElementById('stamp').innerHTML=
-  `Living dataset<span class="dot">·</span>snapshot ${D.generated}<span class="dot">·</span>sources: OpenAlex, Crossref, Semantic Scholar, arXiv, PhilPapers`;
+  `Living dataset<span class="dot">·</span>snapshot ${D.generated}<span class="dot">·</span>sources: OpenAlex, Crossref, Semantic Scholar, arXiv, PhilPapers`
+  + `<div class="approxnote">Figures on this page are rounded. Research on machine minds is published across journals, edited books and several preprint repositories, so the line between published and grey literature is genuinely blurred and no search finds everything — approximate counts are the honest register here. The dataset carries the exact figures, the inclusion criteria, and the records withheld pending verification.</div>`;
 document.getElementById('foot').textContent=
-  `Generated ${D.generated}. Digital Minds Observatory. Statistics, compositions, and rankings computed from the ${nf(t.core)} core works published since 2010.`;
+  `Generated ${D.generated}. Digital Minds Observatory. Computed from exactly ${nf(t.core)} curated works published since 2010 — the figures above are rounded for reading; these are the exact counts.`;
 const fpct=n=>Math.max(2,Math.round(100*n/t.authors));
 document.getElementById('kpis').innerHTML=
-  `<div><div class="v">${nf(t.core)}</div><div class="l">works in the field since 2010</div></div>`+
+  `<div><div class="v">${approxNum(t.core)}</div><div class="l">curated works since 2010 — approximate; the dataset gives exact counts</div></div>`+
   `<div><div class="v">+${t.cagr}%</div><div class="l">average year-on-year growth in core research since 2020</div></div>`+
   `<div><div class="v acc">+${t.cagr22}%</div><div class="l">since LaMDA &amp; ChatGPT (2022)</div></div>`;
 document.getElementById('fun').innerHTML=
-  `<div><div class="v">${nf(t.authors)}</div><div class="fbar"><i style="width:100%"></i></div><div class="l">researchers have contributed since 2010, counted from the 913 of 1,043 works that name their authors</div></div>`+
-  `<div><div class="v">${nf(t.active)}</div><div class="fbar"><i style="width:${fpct(t.active)}%"></i></div><div class="l">of them published in the last two years</div></div>`+
-  `<div><div class="v">${nf(D.nqual)}</div><div class="fbar"><i style="width:${fpct(D.nqual)}%"></i></div><div class="l">of those have two or more works in the field</div></div>`;
+  `<div><div class="v">${approxNum(t.authors)}</div><div class="fbar"><i style="width:100%"></i></div><div class="l">researchers have contributed since 2010, counted from the 913 of 1,043 works that name their authors</div></div>`+
+  `<div><div class="v">${approxNum(t.active)}</div><div class="fbar"><i style="width:${fpct(t.active)}%"></i></div><div class="l">of them published in the last two years</div></div>`+
+  `<div><div class="v">${approxNum(D.nqual)}</div><div class="fbar"><i style="width:${fpct(D.nqual)}%"></i></div><div class="l">of those have two or more works in this corpus</div></div>`;
 
 // (The Overview's own growth chart was removed when the Timeline tab took over the
 // growth-over-time story; its dead draw code was deleted 2026-07-28.)
